@@ -1,6 +1,7 @@
 const express = require('express');
-const User = require('../models/user');
 const router = express.Router();
+const bcrypt = require('bcrypt');
+const User = require('../models/user');
 
 router.post('/', async (req, res) => {
     let user = await User.findOne({ username: req.body.username })
@@ -15,7 +16,9 @@ router.post('/', async (req, res) => {
                 password: req.body.password,
                 isAdmin: req.body.isAdmin,
             });
-            user = await user.save();
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(user.password, salt);
+            await user.save();
 
             const token = user.generateAuthToken();
 

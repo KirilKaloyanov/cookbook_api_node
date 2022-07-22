@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const config = require('config');
 const express = require('express');
 const users = require('./routes/users');
+const auth = require('./routes/auth');
 
 const app = express();
 
@@ -21,5 +22,6 @@ mongoose
 app.use(express.json());
 
 app.use('/api/users', users);
+app.use('/api/auth', auth);
     
 app.listen(3001, ()=> console.log('Listening on port 3001')); 
