@@ -2,6 +2,13 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
+
+router.get('/me', [auth, admin], async (req, res) => {
+    const user = await User.findById(req.user._id).select('-password');
+    res.send(user);
+});
 
 router.post('/', async (req, res) => {
     let user = await User.findOne({ username: req.body.username })
