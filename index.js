@@ -3,6 +3,7 @@ const config = require('config');
 const express = require('express');
 const users = require('./routes/users');
 const auth = require('./routes/auth');
+const recipes = require('./routes/recipes');
 
 const app = express();
 
@@ -23,5 +24,6 @@ app.use(express.json());
 
 app.use('/api/users', users);
 app.use('/api/auth', auth);
+app.use('/api/recipes', recipes);
     
 app.listen(3001, ()=> console.log('Listening on port 3001')); 
