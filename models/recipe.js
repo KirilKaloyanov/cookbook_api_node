@@ -1,23 +1,25 @@
 const mongoose = require('mongoose');
+const { categorySchema } = require('./category');
 
 const recipeSchema = new mongoose.Schema({
-    name: {type: String, required: true},
-    description: {type: String, required: true},
+    name: { type: String, required: true },
+    numberOfServings: { type: Number, required: true },
     imageUrl: String,
     ingredients: {
-        type: Array, 
+        type: Array,
         validate: {
-            validator: function(arr) { return arr && arr.length > 0 },
+            validator: function (arr) { return arr && arr.length > 0 },
             message: 'A recipe needs at least 1 ingredient.'
         }
     },
     method: {
-        type: Array, 
+        type: Array,
         validate: {
-            validator: function(arr) { return arr && arr.length > 0 },
+            validator: function (arr) { return arr && arr.length > 0 },
             message: 'A recipe needs at least 1 step for preparation.'
         }
     },
+    category: categorySchema,
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

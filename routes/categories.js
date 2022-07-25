@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const Category = require('../models/category');
+const { Category } = require('../models/category');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 
 router.get('/', async (req, res) => {
-    const categories = await Category.find(); 
+    const categories = await Category.find();
     res.send(categories);
 })
 
