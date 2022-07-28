@@ -7,12 +7,17 @@ const auth = require('../middleware/auth');
 router.get('/', async (req, res) => {
     const recipes = await Recipe.find().populate('userId', 'username -_id');
     res.send(recipes);
+});
+
+router.get('/:recipeId', async (req, res) => {
+    const recipe = await Recipe.find( {_id: req.params.recipeId } ).populate('userId', 'username -_id');
+    res.send(recipe);
 })
 
-router.get('/:userId', async (req, res) => {
+router.get('/users/:userId', async (req, res) => {
     const recipes = await Recipe.find({userId: req.params.userId});
     res.send(recipes);
-})
+});
 
 router.post('/', auth, async (req, res) => {
     let category = await Category.findById(req.body.category);

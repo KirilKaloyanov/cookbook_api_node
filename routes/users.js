@@ -11,10 +11,13 @@ router.get('/me', auth, async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+
     let user = await User.findOne({ username: req.body.username })
 
     if (user) return res.status(400).send({
-        errors: { usernameRegistered: 'Username is already registered' }
+        errors: {username: {
+            message: 'Username is already registered'
+        }}
     });
     else
         try {
@@ -30,7 +33,8 @@ router.post('/', async (req, res) => {
             const token = user.generateAuthToken();
 
             res
-                .header('x-auth-token', token)
+                .header("x-auth-token", token)
+                //.header("access-control-expose-headers", "x-auth-token")
                 .send(user._id);
         } catch (ex) {
             res.status(400).send(ex);
