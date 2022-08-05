@@ -10,18 +10,34 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:recipeId', async (req, res) => {
-    const recipe = await Recipe.find( {_id: req.params.recipeId } ).populate('userId', 'username -_id');
-    res.send(recipe);
+    try {
+        const recipe = await Recipe.find({_id: req.params.recipeId}).populate('userId', 'username -_id');
+        res.send(recipe[0]);
+    } catch (ex) {
+        res.status(404).send({message: 'Recipe not found', error: ex});
+    }
 })
 
-router.get('/users/:userId', async (req, res) => {
+router.get('/users/:userId', auth, async (req, res) => {
     const recipes = await Recipe.find({userId: req.params.userId});
-    res.send(recipes);
+    if (recipes.length === 0) res.send({message: 'No recipes created yet'});
+    else res.send(recipes);
 });
 
+router.get('/users/:userId/:recipeId', auth, async (req, res) => {
+    try {
+        const recipe = await Recipe.find({_id: req.params.recipeId}).populate('userId', 'username -_id');
+        if (recipe[0].userId.username !== req.user.username) 
+            return res.status(403).send({message: 'Access denied'});
+        res.send(recipe[0]);
+    } catch (ex) {
+        res.status(404).send({message: 'Recipe not found', error: ex});
+    }
+})
+
 router.post('/', auth, async (req, res) => {
-    let category = await Category.findById(req.body.category);
-    if (!category) return res.status(400).send("Invalid category");
+    let category = await Category.find({name: req.body.category});
+    if (category.length === 0) return res.status(400).send({message: "Invalid category"});
 
     try {
         const recipe = new Recipe({
@@ -29,10 +45,10 @@ router.post('/', auth, async (req, res) => {
             numberOfServings: req.body.numberOfServings,
             imageUrl: req.body.imageUrl,
             ingredients: req.body.ingredients,
-            method: req.body.method,
+            methods: req.body.methods,
             category: {
-                _id: category._id,
-                name: category.name
+                _id: category[0]._id,
+                name: category[0].name
             },
             userId: req.user._id
         })
@@ -42,5 +58,47 @@ router.post('/', auth, async (req, res) => {
         res.status(400).send(ex);
     }
 });
+
+router.put('/:recipeId', auth,  async (req, res) => {
+    let category = await Category.find({name: req.body.category});
+    if (category.length === 0) return res.status(400).send({message: "Invalid category"});
+
+    try {
+        const recipe = await Recipe.findByIdAndUpdate(
+            req.params.recipeId,
+            {
+                name: req.body.name,
+                numberOfServings: req.body.numberOfServings,
+                imageUrl: req.body.imageUrl,
+                ingredients: req.body.ingredients,
+                methods: req.body.methods,
+                category: {
+                    _id: category[0]._id,
+                    name: category[0].name
+                },
+                userId: req.user._id
+            },
+            { new: true }
+        );
+
+        if (!recipe) res.status(404).send({message: 'The recipe was not found.'});
+    
+        res.send(recipe);
+    } catch (ex) {
+        res.status(400).send(ex);
+    }
+});
+
+router.delete('/:recipeId', auth, async (req, res) => {
+    try {
+        let recipe = await Recipe.findById(req.params.recipeId).populate('userId', 'username');
+        if (recipe.userId.username !== req.user.username) 
+            return res.status(403).send({message: 'Access denied'});
+        recipe = await Recipe.deleteOne({ _id: req.params.recipeId})
+        res.send(recipe);
+    } catch (ex) {
+        res.status(404).send({message: 'Recipe not found', error: ex});
+    }
+})
 
 module.exports = router;

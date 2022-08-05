@@ -12,7 +12,7 @@ const recipeSchema = new mongoose.Schema({
             message: 'A recipe needs at least 1 ingredient.'
         }
     },
-    method: {
+    methods: {
         type: Array,
         validate: {
             validator: function (arr) { return arr && arr.length > 0 },
