@@ -29,5 +29,7 @@ app.use('/api/users', users);
 app.use('/api/auth', auth);
 app.use('/api/recipes', recipes);
 app.use('/api/categories', categories);
+
+const port = process.env.PORT || 3001;
     
-app.listen(3001, ()=> console.log('Listening on port 3001')); 
+app.listen(port, ()=> console.log(`Listening on port ${port}`)); 
