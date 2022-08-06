@@ -94,7 +94,7 @@ router.put('/:recipeId', auth, async (req, res) => {
 router.put('/:recipeId/new_comment', auth, async (req, res) => {
     if (req.body.comment.length < 1) return res.status(400).send({ message: 'Cannot save empty comment' })
     try {
-        let recipe = await Recipe.findOne({ _id: req.params.recipeId });
+        let recipe = await Recipe.findOne({ _id: req.params.recipeId }).populate('userId', 'username -_id');
         const id = new mongoose.Types.ObjectId();
         const createdAt = id.getTimestamp();
         recipe.comments.push({
